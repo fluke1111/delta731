@@ -694,9 +694,159 @@ footer span {
 .shake-animation {
   animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }
+
+/* ── ENTRY POPUP ── */
+#entry-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(5,5,8,0.72);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+#entry-popup-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.entry-popup-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: linear-gradient(180deg, rgba(20,18,28,0.98), rgba(10,9,14,0.98));
+  border: 1px solid rgba(168,85,247,0.28);
+  border-radius: 24px;
+  padding: 2.2rem 1.8rem 1.8rem;
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(168,85,247,0.08),
+    0 0 80px rgba(138,43,226,0.18),
+    0 30px 70px rgba(0,0,0,0.65);
+  transform: translateY(24px) scale(0.94);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), opacity 0.35s ease;
+  overflow: hidden;
+}
+#entry-popup-overlay.show .entry-popup-card {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.entry-popup-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(168,85,247,0.7), transparent);
+}
+
+.entry-popup-glow {
+  position: absolute;
+  top: -60px; left: 50%;
+  width: 220px; height: 220px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(138,43,226,0.35) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.entry-popup-icon {
+  position: relative;
+  z-index: 1;
+  width: 56px; height: 56px;
+  margin: 0 auto 1.1rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  background: linear-gradient(135deg, rgba(255,45,45,0.18), rgba(138,43,226,0.25));
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.entry-popup-title {
+  position: relative;
+  z-index: 1;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1.5;
+  margin-bottom: 1.8rem;
+  background: linear-gradient(135deg, #fff 0%, #e0aaff 60%, var(--purple-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.entry-popup-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.entry-popup-btn {
+  width: 100%;
+  padding: 0.95rem 1.2rem;
+  border-radius: 14px;
+  border: none;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.entry-popup-btn:active { transform: scale(0.97); }
+
+.entry-popup-btn.primary-no {
+  background: linear-gradient(135deg, var(--red), #c0150b);
+  color: #fff;
+  box-shadow: 0 6px 24px rgba(255,45,45,0.4);
+}
+.entry-popup-btn.primary-no:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 34px rgba(255,45,45,0.55);
+}
+
+.entry-popup-btn.secondary-yes {
+  background: rgba(138,43,226,0.1);
+  border: 1.5px solid rgba(138,43,226,0.4);
+  color: var(--purple-light);
+}
+.entry-popup-btn.secondary-yes:hover {
+  transform: translateY(-2px);
+  background: rgba(138,43,226,0.2);
+  box-shadow: 0 8px 26px rgba(138,43,226,0.3);
+}
+
+@media (max-width: 420px) {
+  .entry-popup-card { padding: 1.9rem 1.4rem 1.5rem; border-radius: 20px; }
+  .entry-popup-title { font-size: 1.18rem; margin-bottom: 1.5rem; }
+  .entry-popup-btn { padding: 0.85rem 1rem; font-size: 0.95rem; }
+}
 </style>
 </head>
 <body>
+
+<!-- ════════════════════ ENTRY POPUP ════════════════════ -->
+<div id="entry-popup-overlay">
+  <div class="entry-popup-card" id="entry-popup-card">
+    <div class="entry-popup-glow"></div>
+    <div class="entry-popup-icon">🤔</div>
+    <div class="entry-popup-title">تعرف شلون تتخطى الرابط؟</div>
+    <div class="entry-popup-actions">
+      <button type="button" class="entry-popup-btn primary-no" id="entry-popup-no">ما أعرف</button>
+      <button type="button" class="entry-popup-btn secondary-yes" id="entry-popup-yes">أعرف</button>
+    </div>
+  </div>
+</div>
 
 <!-- CURSOR -->
 <div id="cursor-glow"></div>
@@ -1098,6 +1248,52 @@ window.addEventListener('scroll', () => {
   const img = document.querySelector('.hero-bg-img');
   if (img) img.style.transform = `translateY(${window.scrollY * 0.3}px)`;
 });
+
+/* ── ENTRY POPUP (يظهر تلقائياً عند دخول الموقع) ── */
+(function () {
+  const overlay = document.getElementById('entry-popup-overlay');
+  const btnNo   = document.getElementById('entry-popup-no');
+  const btnYes  = document.getElementById('entry-popup-yes');
+  const explainVideoUrl = "https://youtu.be/TWZa6qLH2-M?si=SpEoqHvexX9aTjxQ";
+
+  if (!overlay) return;
+
+  function openPopup() {
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePopup() {
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  // إظهار النافذة تلقائياً بعد اختفاء شاشة التحميل (لو موجودة) أو مباشرة بعد التحميل
+  const loader = document.getElementById('loader');
+  if (loader) {
+    // ننتظر حتى يختفي اللودر ثم نظهر النافذة بعد لحظة بسيطة
+    const waitLoader = setInterval(() => {
+      if (loader.style.display === 'none') {
+        clearInterval(waitLoader);
+        setTimeout(openPopup, 300);
+      }
+    }, 150);
+  } else {
+    window.addEventListener('load', () => setTimeout(openPopup, 300));
+  }
+
+  // زر "ما أعرف" -> فتح فيديو الشرح في تبويب جديد
+  btnNo.addEventListener('click', () => {
+    window.open(explainVideoUrl, '_blank', 'noopener,noreferrer');
+  });
+
+  // زر "أعرف" -> إغلاق النافذة فوراً
+  btnYes.addEventListener('click', closePopup);
+
+  // إغلاق عند الضغط خارج البطاقة (اختياري، يحافظ على تجربة استخدام سلسة)
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closePopup();
+  });
+})();
 </script>
 </body>
 </html>
